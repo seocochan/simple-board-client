@@ -1,96 +1,112 @@
 import * as React from 'react';
 
-import { Button, Form, Icon, Input, Upload } from 'antd';
+import { Button, Form, Icon, Input } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { IPostResponse } from 'payloads';
+import * as UploadAPI from 'utils/api/upload';
+
+import ImageInput from './ImageInput';
 
 interface Props extends FormComponentProps {
   post?: IPostResponse;
   subCategory: string;
-  handleFormSubmit: (title: string, text: string) => void;
+  handleFormSubmit: (title: string, text: string, imageUrl?: string) => void;
 }
 
-const normFile = (e: any) => {
-  console.log('Upload event:', e);
-  if (Array.isArray(e)) {
-    return e;
+class PostForm extends React.Component<Props, {}> {
+  private file: Blob | null;
+
+  constructor(props: Props) {
+    super(props);
+    this.file = null;
   }
-  // return e && e.fileList;
 
-  // TODO: 여기에 file[0]을 FileReader로 parse해서 setState하는 로직 작성
-  return e && [e.fileList[e.fileList.length - 1]];
-};
-
-const PostForm: React.SFC<Props> = ({
-  form: { getFieldDecorator, validateFields },
-  post,
-  subCategory,
-  handleFormSubmit
-}) => {
-  const handleSubmit = (e: React.FormEvent<any>) => {
+  private handleSubmit = (e: React.FormEvent<any>) => {
+    const {
+      form: { validateFields },
+      handleFormSubmit,
+      subCategory,
+      post
+    } = this.props;
     e.preventDefault();
-    validateFields((error: any, values: any) => {
-      console.log(values);
-      if (!error) {
-        console.log('submit: ', values);
+
+    validateFields(async (error: any, values: any) => {
+      if (error) {
+        return;
+      }
+
+      if (subCategory === 'screenshot') {
+        if (this.file) {
+          const { data } = await UploadAPI.getSignedUrl(post && post.imageUrl);
+          const { url, key } = data;
+          await UploadAPI.uploadFile(url, this.file);
+          handleFormSubmit(values.title, values.text, key);
+        } else {
+          handleFormSubmit(values.title, values.text, post && post.imageUrl);
+        }
+      } else if (subCategory === 'information' || subCategory === 'party') {
         handleFormSubmit(values.title, values.text);
+      } else {
+        return;
       }
     });
   };
 
-  return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Item>
-        {getFieldDecorator('title', {
-          initialValue: post && post.title,
-          rules: [
-            { required: true, whitespace: true, message: '제목을 입력하세요' },
-            { max: 40, message: '40자 이하로 작성해주세요' }
-          ]
-        })(
-          <Input
-            prefix={<Icon type="form" style={{ color: 'rgba(0,0,0,.25)' }} />}
-            placeholder="제목"
-            size="large"
-          />
-        )}
-      </Form.Item>
-      <Form.Item>
-        {getFieldDecorator('text', {
-          initialValue: post && post.text,
-          rules: [
-            { required: true, whitespace: true, message: '내용을 입력하세요' },
-            { max: 255, message: '255자 이하로 작성해주세요' }
-          ]
-        })(<Input.TextArea placeholder="내용" autosize={{ minRows: 4 }} />)}
-      </Form.Item>
-      {subCategory === 'screenshot' && (
+  public render() {
+    const {
+      form: { getFieldDecorator },
+      post,
+      subCategory
+    } = this.props;
+
+    return (
+      <Form onSubmit={this.handleSubmit}>
         <Form.Item>
-          {getFieldDecorator('image', {
-            valuePropName: 'fileList',
-            getValueFromEvent: normFile
+          {getFieldDecorator('title', {
+            initialValue: post && post.title,
+            rules: [
+              {
+                required: true,
+                whitespace: true,
+                message: '제목을 입력하세요'
+              },
+              { max: 40, message: '40자 이하로 작성해주세요' }
+            ]
           })(
-            <Upload
-              name="avatar"
-              showUploadList={false}
-              customRequest={() => null}
-            >
-              <Button>
-                <Icon type="upload" /> 업로드
-              </Button>
-            </Upload>
+            <Input
+              prefix={<Icon type="form" style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="제목"
+              size="large"
+            />
           )}
         </Form.Item>
-
-        // TODO: 여기에 이미지 프리뷰 컴포넌트 추가하기
-      )}
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          완료
-        </Button>
-      </Form.Item>
-    </Form>
-  );
-};
+        <Form.Item>
+          {getFieldDecorator('text', {
+            initialValue: post && post.text,
+            rules: [
+              {
+                required: true,
+                whitespace: true,
+                message: '내용을 입력하세요'
+              },
+              { max: 255, message: '255자 이하로 작성해주세요' }
+            ]
+          })(<Input.TextArea placeholder="내용" autosize={{ minRows: 4 }} />)}
+        </Form.Item>
+        {subCategory === 'screenshot' && (
+          <ImageInput
+            setFile={(file: Blob) => (this.file = file)}
+            imageUrl={post && process.env.REACT_APP_BUCKET_URL + post.imageUrl}
+          />
+        )}
+        <Form.Item>
+          <Button type="primary" htmlType="submit" style={{ marginTop: 8 }}>
+            완료
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  }
+}
 
 export default Form.create()(PostForm);

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 import { Breadcrumb, Button, Divider, Icon, Popconfirm } from 'antd';
 import { LoadingIndicator } from 'components/common';
@@ -32,10 +33,14 @@ const PostContent: React.SFC<Props> = ({
   }
   return (
     <div className="post">
-      <Breadcrumb>
-        <Breadcrumb.Item>{categoryMap[post.category].name}</Breadcrumb.Item>
-        <Breadcrumb.Item>{categoryMap[post.subCategory].name}</Breadcrumb.Item>
-      </Breadcrumb>
+      <Link to={`/${post.category}/${post.subCategory}`}>
+        <Breadcrumb>
+          <Breadcrumb.Item>{categoryMap[post.category].name}</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            {categoryMap[post.subCategory].name}
+          </Breadcrumb.Item>
+        </Breadcrumb>
+      </Link>
       <div className={styles.header}>
         <h1 className={styles.title}>{post.title}</h1>
         {currentUserId === post.createdBy.id && (
@@ -72,7 +77,17 @@ const PostContent: React.SFC<Props> = ({
         </span>
       </div>
       <Divider />
-      <div className={styles.text}>
+      <div className={styles.content}>
+        {post.imageUrl && (
+          <div className={styles.imageFrame}>
+            <img
+              className={styles.image}
+              width="90%"
+              alt="logo"
+              src={process.env.REACT_APP_BUCKET_URL + post.imageUrl}
+            />
+          </div>
+        )}
         <p>{post.text}</p>
       </div>
       <div className={styles.buttonWrapper}>

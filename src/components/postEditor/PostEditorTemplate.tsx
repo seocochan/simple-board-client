@@ -13,7 +13,7 @@ interface Props {
   post: IPostResponse | null;
   category: string;
   subCategory: string;
-  handleFormSubmit: (title: string, text: string) => void;
+  handleFormSubmit: (title: string, text: string, imageUrl?: string) => void;
 }
 
 const PostEditorTemplate: React.SFC<Props> = ({

@@ -60,7 +60,7 @@ const CommentForm: React.SFC<Props> = ({
               },
               { max: 255, message: '255자 이하로 작성해주세요' }
             ]
-          })(<Input.TextArea placeholder="내용" autosize={{ minRows: 2 }} />)}
+          })(<Input.TextArea placeholder="내용" autosize={{ minRows: 3 }} />)}
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" style={{ float: 'right' }}>

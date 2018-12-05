@@ -6,17 +6,15 @@ import { LoadingIndicator } from 'components/common';
 import * as moment from 'moment';
 import { IPagedResponse, IPostSummary } from 'payloads';
 
+import styles from './Posts.module.less';
+
 interface Props {
   posts: IPagedResponse<IPostSummary> | null;
   subCategory: string;
   handlePageChange: (page: number, size: number) => void;
 }
 
-const Posts: React.SFC<Props> = ({
-  posts,
-  subCategory,
-  handlePageChange
-}) => {
+const Posts: React.SFC<Props> = ({ posts, subCategory, handlePageChange }) => {
   if (posts == null) {
     return <LoadingIndicator />;
   }
@@ -38,11 +36,18 @@ const Posts: React.SFC<Props> = ({
               style={{ flex: '5 1' }}
               avatar={
                 subCategory === 'screenshot' ? (
-                  <img
-                    width={272}
-                    alt="logo"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-                  />
+                  <Link to={`/posts/${item.id}`}>
+                    <div className={styles.imageFrame}>
+                      <img
+                        width={272}
+                        alt="logo"
+                        src={
+                          item.imageUrl &&
+                          process.env.REACT_APP_BUCKET_URL + item.imageUrl
+                        }
+                      />
+                    </div>
+                  </Link>
                 ) : null
               }
               title={<Link to={`/posts/${item.id}`}>{item.title}</Link>}

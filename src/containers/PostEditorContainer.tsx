@@ -26,7 +26,7 @@ class PostEditorContainer extends React.Component<Props, {}> {
     }
   }
 
-  private handleFormSubmit = async (title: string, text: string) => {
+  private handleFormSubmit = async (title: string, text: string, imageUrl? :string) => {
     const {
       PostActions,
       auth,
@@ -45,14 +45,16 @@ class PostEditorContainer extends React.Component<Props, {}> {
           title,
           text,
           category,
-          subCategory
+          subCategory,
+          imageUrl
         });
       } else {
         await PostActions.createPost(auth.currentUser.id.toString(), {
           title,
           text,
           category,
-          subCategory
+          subCategory,
+          imageUrl
         });
       }
       history.push(`/${category}/${subCategory}`);
