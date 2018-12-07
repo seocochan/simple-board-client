@@ -1,7 +1,19 @@
 import * as React from 'react';
 
-const Home = () => {
-  return <div>Home: {process.env.REACT_APP_FOO}</div>;
+import { Banner, Information, Welcome } from 'components/home';
+import { IUserSummary } from 'payloads';
+
+interface Props {
+  currentUser: IUserSummary | null;
+}
+
+const Home: React.SFC<Props> = ({ currentUser }) => {
+  return (
+    <div>
+      <Banner />
+      {currentUser ? <Welcome username={currentUser.username}/> : <Information />}
+    </div>
+  );
 };
 
 export default Home;

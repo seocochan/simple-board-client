@@ -30,7 +30,7 @@ class App extends React.Component<Props, {}> {
   }
 
   public render(): React.ReactNode {
-    const { isLoading, isAuthenticated } = this.props.auth;
+    const { isLoading, isAuthenticated, currentUser } = this.props.auth;
 
     if (isLoading) {
       return <LoadingIndicator />;
@@ -41,7 +41,13 @@ class App extends React.Component<Props, {}> {
         <Layout.Content className={styles.content}>
           <div className={styles.container}>
             <Switch>
-              <Route exact={true} path="/" component={Home} />
+              <Route
+                exact={true}
+                path="/"
+                render={props => (
+                  <Home currentUser={currentUser} {...props} />
+                )}
+              />
               <Route path="/login" component={Login} />
               <Route path="/signup" component={Signup} />
               <Route

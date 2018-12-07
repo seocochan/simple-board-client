@@ -88,9 +88,6 @@ class AppHeader extends React.Component<Props, {}> {
             </span>
           }
         >
-          <Menu.Item key="/settings">
-            <Link to="/settings">설정</Link>
-          </Menu.Item>
           <Menu.Item key="logout">로그아웃</Menu.Item>
         </Menu.SubMenu>
       ];
@@ -111,7 +108,7 @@ class AppHeader extends React.Component<Props, {}> {
           <div className={styles.title}>
             <Link to="/">빡겜의 민족</Link>
           </div>
-          <SearchInput mobile={false} />
+          {currentUser && <SearchInput mobile={false} />}
           <Menu
             mode="horizontal"
             theme="dark"
